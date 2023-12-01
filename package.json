@@ -1,0 +1,24 @@
+{
+  "name": "aoc-2022",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "exports": "./src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "day": "ts-node-esm src/index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^18.11.9",
+    "ts-node": "^10.9.1",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^4.9.3"
+  },
+  "dependencies": {
+    "axios": "^1.2.0",
+    "dotenv": "^16.0.3"
+  }
+}

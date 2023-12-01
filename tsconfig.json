@@ -1,0 +1,19 @@
+{
+  "include": ["src/**/*"],
+  "compilerOptions": {
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "module": "esnext",
+    "outDir": "dist",
+    "lib": ["esnext", "DOM"],
+    "target": "esnext",
+
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "types": ["node"],
+    "strictPropertyInitialization": false
+  }
+}
