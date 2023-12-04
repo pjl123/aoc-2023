@@ -1,11 +1,20 @@
 export default function solution(input: string): number {
   const lines = input.split('\n').filter(l => l.length > 0);
   
-  return lines.map(l => l.split(': ')[1])
-              .map(card => card.split(' | '))
-              .map(cardSplit => { return {'winning': _parseCardHash(cardSplit[0]), 'cardNums': _parseCardHash(cardSplit[1]) } })
-              .map(_findMatchingNums)
-              .reduce((agg, matches) => matches === 0 ? agg : agg + Math.pow(2, matches - 1), 0);
+  const cards = lines.map(l => l.split(': ')[1])
+                     .map(card => card.split(' | '))
+                     .map(cardSplit => { return {'winning': _parseCardHash(cardSplit[0]), 'cardNums': _parseCardHash(cardSplit[1]) } })
+                     .map(_findMatchingNums)
+                     .map(matches => new Card(matches));
+
+  for (let i = 0; i < cards.length; i++) {
+    const card = cards[i];
+    for (let j = 1; j <= card.matches && j + i < cards.length; j++) {
+      cards[i + j].multiplier += card.multiplier;
+    }    
+  }
+
+  return cards.reduce((agg, c) => agg + c.multiplier, 0);
 }
 
 function _parseCardHash(input: string): Set<string> {
@@ -22,4 +31,13 @@ function _findMatchingNums(cardInfo: {[id: string] : Set<string>}): number {
     } 
   }
   return intersection.size;
+}
+
+class Card {
+  matches: number;
+  multiplier: number;
+  constructor(matches: number) {
+    this.matches = matches;
+    this.multiplier = 1;
+  }
 }
