@@ -1,38 +1,65 @@
+import cliProgress from 'cli-progress';
+
 export default function solution(input: string): number {
   const lines = input.split('\n').filter(l => l.length > 0);
-  const seeds = lines[0].split(': ')[1].split(' ').filter(s => s.length > 0);
-
+  const seeds = _parseSeeds(lines[0].split(': ')[1]);
   const mapInputs = input.split('\n\n').slice(1);
   
   const maps = mapInputs.map(_parseMap);
 
-  return seeds.map(s => _calcLocation(s, maps))
-              .reduce((min, l) => l < min ? l : min);
+  const locProgress = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
+  locProgress.start(Number.MAX_VALUE, 0);
+  for (let loc = 0; loc < Number.MAX_VALUE; loc++) {
+    if (_findMatchingSeed(loc, seeds, maps)) {
+      locProgress.stop();
+      return loc;
+    }
+    locProgress.update(loc);
+  }
+  locProgress.stop();
+  return -1;
 }
 
-function _calcLocation(seed: string, maps: Map[]): number {
-  let num = Number(seed);
-  let sourceType = 'seed';
-  let map = _getMap(sourceType, maps);
+function _parseSeeds(seedInput: string): SeedRange[] {
+  const seedInputSplit = seedInput.split(' ').filter(s => s.length > 0);
+  const seedRanges: SeedRange[] = [];
+  for (let i = 0; i < seedInputSplit.length; i+=2) {
+    const start = Number(seedInputSplit[i]);
+    const length = Number(seedInputSplit[i + 1]);
+    seedRanges.push(new SeedRange(start, length));
+  }
+  return seedRanges;
+}
+
+function _findMatchingSeed(loc: number, seeds: SeedRange[], maps: Map[]): boolean {
+  let num = loc;
+  let destType = 'location';
+  let map = _getMapRev(destType, maps);
 
   while (map) {
     for (let i = 0; i < map.mappings.length; i++) {
       const mapping = map.mappings[i];
-      if (num >= mapping.sourceStart && num < mapping.sourceStart + mapping.length) {
-        const diff = mapping.destStart - mapping.sourceStart;
+      if (num >= mapping.destStart && num < mapping.destStart + mapping.length) {
+        const diff = mapping.sourceStart - mapping.destStart;
         num = num + diff;
         break;
       }
     }
-    sourceType = map.mapDest;
-    map = _getMap(sourceType, maps);
+    destType = map.mapSource;
+    map = _getMapRev(destType, maps);
   }
 
-  return num;
+  for (let i = 0; i < seeds.length; i++) {
+    const seedRange = seeds[i];
+    if (num >= seedRange.seedStart && num < seedRange.seedStart + seedRange.length) {
+      return true;
+    }
+  }
+  return false;
 }
 
-function _getMap(sourceType: string, maps: Map[]): Map {
-  return maps.find(m => m.mapSource === sourceType);
+function _getMapRev(destType: string, maps: Map[]): Map {
+  return maps.find(m => m.mapDest === destType);
 }
 
 function _parseMap(mapInput: string): Map {
@@ -51,6 +78,15 @@ function _parseMap(mapInput: string): Map {
     mappings.push(new RangeMapping(sourceStart, destStart, length));
   }
   return new Map(mapDescription, mappings);
+}
+
+class SeedRange {
+  seedStart: number;
+  length: number;
+  constructor(seedStart: number, length: number) {
+    this.seedStart = seedStart;
+    this.length = length;
+  }
 }
 
 class Map {
