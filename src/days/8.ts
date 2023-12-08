@@ -5,14 +5,16 @@ export default function solution(input: string): number {
   const nodeInputs = linesSplit[1].split('\n').filter(l => l.length > 0);
   const nodeDict = {};
   const nodes = [];
-  let currNode = nodes[0];
+  const currNodes = [];
+  const steps = [];
   for (let i = 0; i < nodeInputs.length; i++) {
     const nodeInput = nodeInputs[i];
     const node = _parseNode(nodeInput);
     nodeDict[node.label] = node;
     nodes.push(node);
-    if (node.label === 'AAA') {
-      currNode = node;
+    if (node.label.endsWith('A')) {
+      currNodes.push(node);
+      steps.push(0);
     }
   }
   
@@ -24,27 +26,34 @@ export default function solution(input: string): number {
     node.right = nodeDict[groups['right']];
   }
 
-  let loops = 0;
+  const completedSteps = new Array(steps.length).fill(-1);
   let instInd = 0;
-  while (currNode.label !== 'ZZZ') {
+  while (completedSteps.filter(s => s > 0).length !== currNodes.length) {
     const inst = instructions[instInd];
-    if (inst === 'R') {
-      currNode = currNode.right;
+    for (let i = 0; i < currNodes.length; i++) {
+      const node = currNodes[i];
+      if (inst === 'R') {
+        currNodes[i] = node.right;
+      }
+      else {
+        currNodes[i] = node.left;
+      }
+
+      steps[i]++;
+      if (completedSteps[i] === -1 && (instInd + 1) === instructions.length && currNodes[i].label.endsWith('Z')) {
+        completedSteps[i] = steps[i];
+      }
     }
-    else {
-      currNode = currNode.left;
-    }
-    if (currNode.label === 'ZZZ') {
-      break;
-    }
+
     instInd++;
     if (instInd === instructions.length) {
       instInd = 0;
-      loops++;
     }
   }
 
-  return (loops + 1) * instructions.length;
+  console.log(completedSteps, 'https://www.calculator.net/lcm-calculator.html');
+
+  return 0;
 }
 
 function _parseNode(line: string): Node {
