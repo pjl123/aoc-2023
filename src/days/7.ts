@@ -35,6 +35,7 @@ enum HandType {
 }
 
 const CARD_VALUES = {
+  'J': 1,
   '2': 2,
   '3': 3,
   '4': 4,
@@ -44,7 +45,6 @@ const CARD_VALUES = {
   '8': 8,
   '9': 9,
   'T': 10,
-  'J': 11,
   'Q': 12,
   'K': 13,
   'A': 14
@@ -74,6 +74,13 @@ class Hand {
                           return obj;
                         }, {});
     
+    let wilds = counts['J'] ? counts['J'] : 0;
+    delete counts['J'];
+
+    if (wilds === 5) {
+      return HandType.FiveOfAKind;
+    }
+
     const groups = Object.keys(counts);
     if (groups.length === 1) {
       return HandType.FiveOfAKind;
@@ -87,17 +94,21 @@ class Hand {
     let countThree = 0;
     for (let i = 0; i < groups.length; i++) {
       const group = groups[i];
-      if (counts[group] === 4) {
+      if (counts[group] + wilds === 4) {
         return HandType.FourOfAKind;
-      }
-
-      if (counts[group] === 2) {
-        countPairs++;
       }
 
       if (counts[group] === 3) {
         countThree++;
       }
+
+      if (counts[group] === 2) {
+        countPairs++;
+      }
+    }
+
+    if (countPairs === 2 && wilds === 1) {
+      return HandType.FullHouse;
     }
 
     if (countThree === 1) {
@@ -106,6 +117,14 @@ class Hand {
       }
 
       return HandType.ThreeOfAKind
+    }
+
+    if (countPairs === 0 && wilds === 2) {
+      return HandType.ThreeOfAKind;
+    }
+
+    if (countPairs === 1 && wilds === 1) {
+      return HandType.ThreeOfAKind;
     }
 
     if (countPairs === 2) {
