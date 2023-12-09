@@ -6,21 +6,21 @@ export default function solution(input: string): number {
     const rootSeq = new Sequence(line.split(' ').filter(n => n.length > 0).map(Number));
     rootSeq.child = _getChild(rootSeq);
     _extrapolate(rootSeq);
-    total += rootSeq.numbers[rootSeq.numbers.length - 1];
+    total += rootSeq.numbers[0];
   }
   return total;
 }
 
 function _extrapolate(sequence: Sequence) {
   if (!sequence.child) {
-    sequence.numbers.push(0);
+    sequence.numbers.unshift(0);
     return;
   }
 
   _extrapolate(sequence.child);
-  const lastNum = sequence.numbers[sequence.numbers.length - 1];
-  const lastChildNum = sequence.child.numbers[sequence.child.numbers.length - 1];
-  sequence.numbers.push(lastNum + lastChildNum);
+  const firstNum = sequence.numbers[0];
+  const firstChildNum = sequence.child.numbers[0];
+  sequence.numbers.unshift(firstNum - firstChildNum);
 }
 
 function _getChild(parent: Sequence): Sequence {
