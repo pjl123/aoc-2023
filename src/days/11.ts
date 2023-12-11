@@ -26,6 +26,7 @@ export default function solution(input: string): number {
                              return agg;
                            }, []);
 
+  const DISTANCE_MULTIPLIER = 1000000;
   let yAdd = 0;
   const galaxies: Galaxy[] = [];
   for (let y = 0; y < grid.length; y++) {
@@ -48,7 +49,7 @@ export default function solution(input: string): number {
       }
 
       if (cell === '#') {
-        galaxies.push(new Galaxy(y + yAdd, x + xAdd));
+        galaxies.push(new Galaxy(y + (yAdd * (DISTANCE_MULTIPLIER - 1)), x + (xAdd * (DISTANCE_MULTIPLIER - 1))));
       }
     }
   }
